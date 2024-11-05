@@ -1,28 +1,76 @@
-name: Deploy to cPanel via FTP
+
+name: Deploy Next.js to cPanel via FTP
 
 on:
   push:
     branches:
-      - main  # Trigger the workflow on pushes to the main branch
+      - main  # Triggers on pushes to the main branch
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Check out the code
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Deploy to cPanel using FTP
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Use the appropriate Node version for your project
+
+      # Step 3: Install dependencies and build Next.js project
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Next.js project
+        run: npm run build
+
+      # Step 4: Deploy to cPanel via FTP
+      - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./  # Upload all files in the repository (note the trailing /)
+          local-dir: .next  # Upload the built Next.js files from the `.next` directory
           server-dir: /public_html/  # Target directory on your cPanel server
           exclude: |
             .git*
             *.md
             README.md
             .github/
+            node_modules/
+            .next/cache/
+
+
+# name: Deploy to cPanel via FTP
+
+# on:
+#   push:
+#     branches:
+#       - main  # Trigger the workflow on pushes to the main branch
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v2
+
+#       - name: Deploy to cPanel using FTP
+#         uses: SamKirkland/FTP-Deploy-Action@v4.3.0
+#         with:
+#           server: ${{ secrets.FTP_SERVER }}
+#           username: ${{ secrets.FTP_USERNAME }}
+#           password: ${{ secrets.FTP_PASSWORD }}
+#           local-dir: ./  # Upload all files in the repository (note the trailing /)
+#           server-dir: /public_html/  # Target directory on your cPanel server
+#           exclude: |
+#             .git*
+#             *.md
+#             README.md
+#             .github/
