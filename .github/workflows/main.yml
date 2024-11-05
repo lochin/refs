@@ -19,7 +19,7 @@ jobs:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: .  # Upload all files in the repository
+          local-dir: ./  # Upload all files in the repository (note the trailing /)
           server-dir: /public_html/  # Target directory on your cPanel server
           exclude: |
             .git*
