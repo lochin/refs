@@ -1,4 +1,4 @@
-name: Deploy Next.js to cPanel via FTP
+name: Deploy Next.js to cPanel via SSH
 
 on:
   push:
@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Check out the code
+      # Step 1: Checkout the code from GitHub repository
       - name: Checkout code
         uses: actions/checkout@v2
 
@@ -18,16 +18,16 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '21'  ## Use the appropriate Node version for your project
+          node-version: '18'  # You can specify the Node.js version you need
 
-      # Step 3: Install dependencies and build Next.js project
+      # Step 3: Install dependencies and build the Next.js project
       - name: Install dependencies
         run: npm install
 
       - name: Build Next.js project
         run: npm run build
 
-      # Step 4: Deploy files via FTP (excluding node_modules and unnecessary files)
+      # Step 4: Deploy files via FTP (Optional, if you're uploading files directly via FTP)
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.0
         with:
@@ -44,17 +44,23 @@ jobs:
             node_modules/  # Exclude node_modules
             .next/cache/
 
-      # Step 5: SSH into the cPanel server and install dependencies (if needed)
-      - name: SSH into cPanel server and install dependencies
+      # Step 5: SSH into cPanel server and deploy Next.js app
+      - name: SSH into cPanel server and deploy
         uses: appleboy/ssh-action@v0.1.3
         with:
-          host: ${{ secrets.CPANEL_SERVER_IP }}  # cPanel server IP
+          host: ${{ secrets.CPANEL_SERVER_IP }}  # cPanel server IP address
           username: ${{ secrets.CPANEL_USERNAME }}  # SSH username
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key
-          port: 22
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key stored in GitHub Secrets
+          port: 22  # Default SSH port
           script: |
-            cd /home/refsuz/refs.uz/ftp_refsuz/public_html/  # Path to your app
+            cd /home/${{ secrets.CPANEL_USERNAME }}/public_html/  # Path to your Next.js app
             npm install  # Run npm install if dependencies aren't installed yet
             npm run build  # Ensure the app is built correctly
             pm2 start npm --name "next-app" -- start  # Run the Next.js app with PM2
             pm2 save  # Save the PM2 process for automatic restart
+
+      # Step 6: (Optional) Clean up old files or restart services if needed
+      - name: Cleanup and restart services
+        run: |
+          # Example cleanup command or additional commands to restart services
+          echo "Cleaning up and restarting services"
