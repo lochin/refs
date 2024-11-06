@@ -45,22 +45,22 @@ jobs:
             .next/cache/
 
       # Step 5: SSH into cPanel server and deploy Next.js app
-      - name: SSH into cPanel server and deploy
-        uses: appleboy/ssh-action@v0.1.3
-        with:
-          host: ${{ secrets.CPANEL_SERVER_IP }}  # cPanel server IP address
-          username: ${{ secrets.CPANEL_USERNAME }}  # SSH username
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key stored in GitHub Secrets
-          port: 22  # Default SSH port
-          script: |
-            cd /home/${{ secrets.CPANEL_USERNAME }}/public_html/  # Path to your Next.js app
-            npm install  # Run npm install if dependencies aren't installed yet
-            npm run build  # Ensure the app is built correctly
-            pm2 start npm --name "next-app" -- start  # Run the Next.js app with PM2
-            pm2 save  # Save the PM2 process for automatic restart
+      # - name: SSH into cPanel server and deploy
+      #   uses: appleboy/ssh-action@v0.1.3
+      #   with:
+      #     host: ${{ secrets.CPANEL_SERVER_IP }}  # cPanel server IP address
+      #     username: ${{ secrets.CPANEL_USERNAME }}  # SSH username
+      #     key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key stored in GitHub Secrets
+      #     port: 22  # Default SSH port
+      #     script: |
+      #       cd /home/${{ secrets.CPANEL_USERNAME }}/public_html/  # Path to your Next.js app
+      #       npm install  # Run npm install if dependencies aren't installed yet
+      #       npm run build  # Ensure the app is built correctly
+      #       pm2 start npm --name "next-app" -- start  # Run the Next.js app with PM2
+      #       pm2 save  # Save the PM2 process for automatic restart
 
-      # Step 6: (Optional) Clean up old files or restart services if needed
-      - name: Cleanup and restart services
-        run: |
-          # Example cleanup command or additional commands to restart services
-          echo "Cleaning up and restarting services"
+      # # Step 6: (Optional) Clean up old files or restart services if needed
+      # - name: Cleanup and restart services
+      #   run: |
+      #     # Example cleanup command or additional commands to restart services
+      #     echo "Cleaning up and restarting services"
