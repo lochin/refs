@@ -42,5 +42,4 @@ jobs:
             *.md
             README.md
             .github/
-            node_modules/
             .next/cache/
