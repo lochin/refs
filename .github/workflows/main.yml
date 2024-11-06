@@ -1,4 +1,4 @@
-name: Deploy Next.js to cPanel via FTP and SSH
+name: Deploy Next.js to cPanel via FTP
 
 on:
   push:
@@ -27,34 +27,34 @@ jobs:
       - name: Build Next.js project
         run: npm run build
 
-      # Step 4: Deploy files via FTP
+      # Step 4: Deploy files via FTP (excluding node_modules and unnecessary files)
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.0
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
-          local-dir: ./  # Upload all files (including package.json, .next/, etc.)
+          local-dir: .next/  # Upload only the .next folder (built files)
           server-dir: /public_html/  # Target directory on your cPanel server
           exclude: |
             .git*
             *.md
             README.md
             .github/
-            node_modules/
+            node_modules/  # Exclude node_modules
             .next/cache/
 
-      # Step 5: SSH into the cPanel server and run npm install and npm run build
+      # Step 5: SSH into the cPanel server and install dependencies (if needed)
       - name: SSH into cPanel server and install dependencies
         uses: appleboy/ssh-action@v0.1.3
         with:
           host: ${{ secrets.CPANEL_SERVER_IP }}  # cPanel server IP
           username: ${{ secrets.CPANEL_USERNAME }}  # SSH username
-          key: ${{ secrets.SSH_PRIVATE_KEY }}  # Your private SSH key
+          key: ${{ secrets.SSH_PRIVATE_KEY }}  # SSH private key
           port: 22
           script: |
             cd /home/refsuz/refs.uz/ftp_refsuz/public_html/  # Path to your app
-            npm install
-            npm run build
+            npm install  # Run npm install if dependencies aren't installed yet
+            npm run build  # Ensure the app is built correctly
             pm2 start npm --name "next-app" -- start  # Run the Next.js app with PM2
-            pm2 save  # Make sure PM2 remembers the process
+            pm2 save  # Save the PM2 process for automatic restart
